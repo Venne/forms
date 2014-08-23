@@ -13,27 +13,25 @@ namespace VenneTests\Forms;
 
 use Nette\Application\UI\Form;
 use Tester\Assert;
-use Tester\TestCase;
 use Venne\Forms\Controls\EventControl;
-use Venne\Forms\FormFactory;
 
 require __DIR__ . '/../../bootstrap.php';
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class EventControlTest extends TestCase
+class EventControlTest extends \Tester\TestCase
 {
 
 	public function testAttached()
 	{
-		$test= FALSE;
+		$test = false;
 
 		$presenter = new Presenter;
 		$form = new Form;
-		$form['_foo'] = $control =  new EventControl('_foo');
-		$control->onAttached[] = function() use (&$test) {
-			$test = TRUE;
+		$form['_foo'] = $control = new EventControl('_foo');
+		$control->onAttached[] = function () use (&$test) {
+			$test = true;
 		};
 
 		Assert::false($test);
@@ -42,9 +40,13 @@ class EventControlTest extends TestCase
 
 		Assert::true($test);
 	}
+
 }
 
-class Presenter extends \Nette\Application\UI\Presenter {}
+class Presenter extends \Nette\Application\UI\Presenter
+{
+
+}
 
 $testCache = new EventControlTest;
 $testCache->run();

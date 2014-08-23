@@ -11,8 +11,6 @@
 
 namespace Venne\Forms;
 
-use Nette\Application\UI\Form;
-
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
@@ -20,7 +18,7 @@ interface IFormFactory
 {
 
 	/**
-	 * @return Form
+	 * @return \Nette\Application\UI\Form
 	 */
 	public function create();
 

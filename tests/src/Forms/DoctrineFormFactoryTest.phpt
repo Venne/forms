@@ -15,7 +15,6 @@ use Kdyby\Doctrine\Entities\BaseEntity;
 use Kdyby\DoctrineForms\EntityFormMapper;
 use Nette\Application\UI\Form;
 use Tester\Assert;
-use Tester\TestCase;
 use Venne\Bridges\Kdyby\DoctrineForms\FormFactory;
 
 require __DIR__ . '/../bootstrap.php';
@@ -23,18 +22,16 @@ require __DIR__ . '/../bootstrap.php';
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class DoctrineFormFactoryTest extends TestCase
+class DoctrineFormFactoryTest extends \Tester\TestCase
 {
 
-	/** @var EntityFormMapper */
+	/** @var \Kdyby\DoctrineForms\EntityFormMapper */
 	private $entityFormMapper;
-
 
 	public function setUp()
 	{
 		$this->entityFormMapper = new EntityFormMapper;
 	}
-
 
 	public function testBuildFactory()
 	{
@@ -58,7 +55,6 @@ class DoctrineFormFactoryTest extends TestCase
 		Assert::same(array($entity, $form), $this->entityFormMapper->save);
 
 	}
-
 
 	public function testBuildFactorySaveSuccess()
 	{
@@ -108,7 +104,6 @@ class DoctrineFormFactoryTest extends TestCase
 
 	}
 
-
 	public function testBuildFactorySaveError()
 	{
 		$entity = new FooEntity;
@@ -157,7 +152,6 @@ class DoctrineFormFactoryTest extends TestCase
 
 	}
 
-
 	public function testBuildFactoryFlushError()
 	{
 		$entity = new FooEntity;
@@ -180,7 +174,6 @@ class DoctrineFormFactoryTest extends TestCase
 		Assert::true($em->rollback);
 		Assert::same(1, count($form->getErrors()));
 	}
-
 
 	public function testBuildFactoryCommitError()
 	{
@@ -207,7 +200,6 @@ class DoctrineFormFactoryTest extends TestCase
 		Assert::same(1, count($form->getErrors()));
 	}
 
-
 	public function testSetSaveEntity()
 	{
 		$formFactory = new FormFactory($this->entityFormMapper);
@@ -216,8 +208,8 @@ class DoctrineFormFactoryTest extends TestCase
 			$formFactory->setSaveEntity('aaa');
 		}, 'Nette\InvalidArgumentException', 'Argument must be callable.');
 
-		foreach (array(TRUE, FALSE) as $val) {
-			$test = FALSE;
+		foreach (array(true, false) as $val) {
+			$test = false;
 			$entity = new FooEntity;
 			$this->entityFormMapper->em = $em = new EntityManagerErrorOnCommit;
 
@@ -226,7 +218,8 @@ class DoctrineFormFactoryTest extends TestCase
 			})))
 				->setEntity($entity)
 				->setSaveEntity(function () use (&$test, $val) {
-					$test = TRUE;
+					$test = true;
+
 					return $val;
 				})
 				->create();
@@ -234,7 +227,7 @@ class DoctrineFormFactoryTest extends TestCase
 			$form['_eventControl']->onAttached();
 			$form->onValidate($form);
 
-			Assert::same($val ? : NULL, $em->begin);
+			Assert::same($val ?: null, $em->begin);
 		}
 	}
 
@@ -243,14 +236,12 @@ class DoctrineFormFactoryTest extends TestCase
 class MyForm extends Form
 {
 
-	public $s = TRUE;
-
+	public $s = true;
 
 	public function __construct()
 	{
 		$this->addSubmit('_submit', 'Submit');
 	}
-
 
 	public function isSubmitted()
 	{
@@ -299,34 +290,29 @@ class EntityManager
 
 	public $rollback;
 
-
 	public function beginTransaction()
 	{
-		$this->begin = TRUE;
+		$this->begin = true;
 	}
-
 
 	public function persist()
 	{
-		$this->persist = TRUE;
+		$this->persist = true;
 	}
-
 
 	public function flush()
 	{
-		$this->flush = TRUE;
+		$this->flush = true;
 	}
-
 
 	public function commit()
 	{
-		$this->commit = TRUE;
+		$this->commit = true;
 	}
-
 
 	public function rollback()
 	{
-		$this->rollback = TRUE;
+		$this->rollback = true;
 	}
 
 }
@@ -345,18 +331,15 @@ class EntityFormMapper
 
 	public $save;
 
-
 	public function load($entity, $form)
 	{
 		$this->load = array($entity, $form);
 	}
 
-
 	public function save($entity, $form)
 	{
 		$this->save = array($entity, $form);
 	}
-
 
 	public function getEntityManager()
 	{

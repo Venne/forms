@@ -13,32 +13,29 @@ namespace Venne\Bridges\Kdyby\DoctrineForms;
 
 use Kdyby\DoctrineForms\EntityFormMapper;
 use Venne\Forms\IFormFactory;
-use Venne\Forms\IFormFactoryFactory;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class FormFactoryFactory implements IFormFactoryFactory
+class FormFactoryFactory implements \Venne\Forms\IFormFactoryFactory
 {
 
-	/** @var EntityFormMapper */
+	/** @var \Kdyby\DoctrineForms\EntityFormMapper */
 	private $entityMapper;
 
-
 	/**
-	 * @param EntityFormMapper $entityMapper
+	 * @param \Kdyby\DoctrineForms\EntityFormMapper $entityMapper
 	 */
 	public function __construct(EntityFormMapper $entityMapper)
 	{
 		$this->entityMapper = $entityMapper;
 	}
 
-
 	/**
-	 * @param IFormFactory|NULL $formFactory
-	 * @return FormFactory
+	 * @param \Venne\Forms\IFormFactory|NULL $formFactory
+	 * @return \Venne\Forms\FormFactory
 	 */
-	public function create(IFormFactory $formFactory = NULL)
+	public function create(IFormFactory $formFactory = null)
 	{
 		return new FormFactory($this->entityMapper, $formFactory);
 	}

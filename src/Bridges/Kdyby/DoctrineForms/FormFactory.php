@@ -16,34 +16,31 @@ use Kdyby\DoctrineForms\EntityFormMapper;
 use Nette\Application\UI\Form;
 use Nette\Forms\ISubmitterControl;
 use Nette\InvalidArgumentException;
-use Nette\Object;
 use Venne\Forms\Controls\EventControl;
-use Venne\Forms\IFormFactory;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class FormFactory extends \Venne\Forms\FormFactory implements IFormFactory
+class FormFactory extends \Venne\Forms\FormFactory implements \Venne\Forms\IFormFactory
 {
 
-	/** @var EntityFormMapper */
+	/** @var \Kdyby\DoctrineForms\EntityFormMapper */
 	private $entityMapper;
 
-	/** @var BaseEntity */
+	/** @var \Kdyby\Doctrine\Entities\BaseEntity */
 	private $entity;
 
-	/** @var array */
+	/** @var callable */
 	private $saveEntity;
 
 	/** @var bool */
-	private $inTransaction = FALSE;
-
+	private $inTransaction = false;
 
 	/**
-	 * @param EntityFormMapper $entityMapper
-	 * @param IFormFactory|callable|NULL $formFactory
+	 * @param \Kdyby\DoctrineForms\EntityFormMapper $entityMapper
+	 * @param \Venne\Forms\IFormFactory|callable|NULL $formFactory
 	 */
-	public function __construct(EntityFormMapper $entityMapper, $formFactory = NULL)
+	public function __construct(EntityFormMapper $entityMapper, $formFactory = null)
 	{
 		parent::__construct($formFactory);
 
@@ -53,22 +50,20 @@ class FormFactory extends \Venne\Forms\FormFactory implements IFormFactory
 		};
 	}
 
-
 	/**
-	 * @param BaseEntity $entity
-	 * @return $this
+	 * @param \Kdyby\Doctrine\Entities\BaseEntity $entity
+	 * @return \Venne\Forms\FormFactory
 	 */
 	public function setEntity(BaseEntity $entity)
 	{
 		$this->entity = $entity;
+
 		return $this;
 	}
 
-
 	/**
-	 * @param $saveEntity
-	 * @return $this
-	 * @throws \Nette\InvalidArgumentException
+	 * @param callable $saveEntity
+	 * @return \Venne\Forms\FormFactory
 	 */
 	public function setSaveEntity($saveEntity)
 	{
@@ -77,12 +72,12 @@ class FormFactory extends \Venne\Forms\FormFactory implements IFormFactory
 		}
 
 		$this->saveEntity = $saveEntity;
+
 		return $this;
 	}
 
-
 	/**
-	 * @return IFormFactory
+	 * @return \Venne\Forms\IFormFactory
 	 */
 	public function create()
 	{
@@ -100,12 +95,12 @@ class FormFactory extends \Venne\Forms\FormFactory implements IFormFactory
 			if ($saveEntity && $saveEntity($form)) {
 				try {
 					$this->entityMapper->getEntityManager()->beginTransaction();
-					$this->inTransaction = TRUE;
+					$this->inTransaction = true;
 					$this->entityMapper->getEntityManager()->persist($entity);
 					$this->entityMapper->getEntityManager()->flush();
 				} catch (\Exception $e) {
 					$this->entityMapper->getEntityManager()->rollback();
-					$this->inTransaction = FALSE;
+					$this->inTransaction = false;
 					$form->addError($e->getMessage());
 				}
 			}
@@ -114,10 +109,10 @@ class FormFactory extends \Venne\Forms\FormFactory implements IFormFactory
 			if ($this->inTransaction) {
 				try {
 					$this->entityMapper->getEntityManager()->commit();
-					$this->inTransaction = FALSE;
+					$this->inTransaction = false;
 				} catch (\Exception $e) {
 					$this->entityMapper->getEntityManager()->rollback();
-					$this->inTransaction = FALSE;
+					$this->inTransaction = false;
 					$form->addError($e->getMessage());
 				}
 			}
@@ -127,6 +122,7 @@ class FormFactory extends \Venne\Forms\FormFactory implements IFormFactory
 				$this->entityMapper->getEntityManager()->rollback();
 			}
 		};
+
 		return $form;
 	}
 

@@ -11,26 +11,25 @@
 
 namespace Venne\Forms\Controls;
 
-use Nette\Forms\Controls\HiddenField;
-
 /**
  * @author     Josef Kříž
  */
-class EventControl extends HiddenField
+class EventControl extends \Nette\Forms\Controls\HiddenField
 {
 
-	/** @var array */
+	/** @var callable */
 	public $onAttached;
 
-
-	public function __construct($caption = NULL)
+	/**
+	 * @param string|null $caption
+	 */
+	public function __construct($caption = null)
 	{
 		parent::__construct($caption);
 
 		$this->monitor('Nette\Application\UI\Presenter');
-		$this->setOmitted(TRUE);
+		$this->setOmitted(true);
 	}
-
 
 	protected function attached($form)
 	{

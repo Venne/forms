@@ -18,9 +18,9 @@ interface IFormFactoryFactory
 {
 
 	/**
-	 * @param IFormFactory $formFactory
-	 * @return IFormFactory
+	 * @param \Venne\Forms\IFormFactory|null $formFactory
+	 * @return \Venne\Forms\IFormFactory
 	 */
-	public function create(IFormFactory $formFactory = NULL);
+	public function create(IFormFactory $formFactory = null);
 
 }

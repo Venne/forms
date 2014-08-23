@@ -14,24 +14,20 @@ namespace Venne\Forms;
 use Nette\Application\UI\Form;
 use Nette\InvalidArgumentException;
 use Nette\InvalidStateException;
-use Nette\Object;
-use Venne\System\Administration\Forms\Bootstrap3Renderer;
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class FormFactory extends Object implements IFormFactory
+class FormFactory extends \Nette\Object implements \Venne\Forms\IFormFactory
 {
 
-	/** @var NULL|IFormFactory|callable */
+	/** @var \Venne\Forms\IFormFactory|callable|null */
 	private $formFactory;
 
-
 	/**
-	 * @param NULL|IFormFactory|callable $formFactory
-	 * @throws InvalidArgumentException
+	 * @param \Venne\Forms\IFormFactory|callable|null $formFactory
 	 */
-	public function __construct($formFactory = NULL)
+	public function __construct($formFactory = null)
 	{
 		if ($formFactory && !$formFactory instanceof IFormFactory && !is_callable($formFactory)) {
 			throw new InvalidArgumentException("Form factory must be instance of 'Venne\Forms\IFormFactory' OR callable.");
@@ -40,10 +36,8 @@ class FormFactory extends Object implements IFormFactory
 		$this->formFactory = $formFactory;
 	}
 
-
 	/**
-	 * @return Form
-	 * @throws \Nette\InvalidStateException
+	 * @return \Nette\Application\UI\Form
 	 */
 	public function create()
 	{

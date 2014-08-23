@@ -13,7 +13,6 @@ namespace VenneTests\Forms;
 
 use Nette\Application\UI\Form;
 use Tester\Assert;
-use Tester\TestCase;
 use Venne\Forms\FormFactory;
 
 require __DIR__ . '/../bootstrap.php';
@@ -21,7 +20,7 @@ require __DIR__ . '/../bootstrap.php';
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class FormFactoryTest extends TestCase
+class FormFactoryTest extends \Tester\TestCase
 {
 
 	public function testConstructor()
@@ -41,7 +40,6 @@ class FormFactoryTest extends TestCase
 		}, 'Nette\InvalidArgumentException');
 	}
 
-
 	public function testCreate()
 	{
 		Assert::type('Nette\Application\UI\Form', (new FormFactory())->create());
@@ -50,7 +48,7 @@ class FormFactoryTest extends TestCase
 		}))->create());
 		Assert::exception(function () {
 			(new FormFactory(function () {
-				return NULL;
+				return null;
 			}))->create();
 		}, 'Nette\InvalidStateException');
 	}

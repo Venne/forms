@@ -11,26 +11,19 @@
 
 namespace VenneTests\Forms;
 
-use Kdyby\Doctrine\Entities\BaseEntity;
 use Kdyby\DoctrineForms\EntityFormMapper;
 use Nette\Application\UI\Form;
 use Tester\Assert;
-use Tester\TestCase;
 use Venne\Bridges\Kdyby\DoctrineForms\FormFactoryBuilder;
 use Venne\Bridges\Kdyby\DoctrineForms\FormFactoryFactory;
-use Venne\Forms\FormFactory;
 
 require __DIR__ . '/../bootstrap.php';
 
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class DoctrineFormFactoryFactoryTest extends TestCase
+class DoctrineFormFactoryFactoryTest extends \Tester\TestCase
 {
-
-	/** @var EntityFormMapper */
-	private $entityFormMapper;
-
 
 	public function testCreate()
 	{
@@ -40,11 +33,7 @@ class DoctrineFormFactoryFactoryTest extends TestCase
 		Assert::type('Venne\Bridges\Kdyby\DoctrineForms\FormFactory', $formFactoryFactory->create());
 	}
 
-
-
 }
-
-
 
 $testCache = new DoctrineFormFactoryFactoryTest;
 $testCache->run();
@@ -60,18 +49,15 @@ class EntityFormMapper
 
 	public $save;
 
-
 	public function load($entity, $form)
 	{
 		$this->load = array($entity, $form);
 	}
 
-
 	public function save($entity, $form)
 	{
 		$this->save = array($entity, $form);
 	}
-
 
 	public function getEntityManager()
 	{

@@ -11,12 +11,10 @@
 
 namespace Venne\Forms\DI;
 
-use Nette\DI\CompilerExtension;
-
 /**
  * @author Josef Kříž <pepakriz@gmail.com>
  */
-class FormsExtension extends CompilerExtension
+class FormsExtension extends \Nette\DI\CompilerExtension
 {
 
 	public function loadConfiguration()

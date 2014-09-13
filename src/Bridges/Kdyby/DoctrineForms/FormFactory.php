@@ -96,8 +96,7 @@ class FormFactory extends \Venne\Forms\FormFactory implements \Venne\Forms\IForm
 				try {
 					$this->entityMapper->getEntityManager()->beginTransaction();
 					$this->inTransaction = true;
-					$this->entityMapper->getEntityManager()->persist($entity);
-					$this->entityMapper->getEntityManager()->flush();
+					$this->entityMapper->getEntityManager()->getRepository($entity::getClassName())->save($entity);
 				} catch (\Exception $e) {
 					$this->entityMapper->getEntityManager()->rollback();
 					$this->inTransaction = false;

@@ -315,6 +315,28 @@ class EntityManager
 		$this->rollback = true;
 	}
 
+	public function getRepository($class)
+	{
+		return new Repository($this);
+	}
+
+}
+
+class Repository
+{
+	public $em;
+
+	function __construct($em)
+	{
+		$this->em = $em;
+	}
+
+	public function save()
+	{
+		$this->em->persist();
+		$this->em->flush();
+	}
+
 }
 
 $testCache = new DoctrineFormFactoryTest;
@@ -352,5 +374,10 @@ namespace Kdyby\Doctrine\Entities;
 
 class BaseEntity
 {
+
+	public static function getClassName()
+	{
+		return get_called_class();
+	}
 
 }

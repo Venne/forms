@@ -19,7 +19,9 @@
 		"nette/nette": "~2.1"
 	},
 	"require-dev": {
-		"nette/tester": "~1.2.0"
+		"nette/tester": "~1.2.0",
+		"phing/phing": "~2.8.0",
+		"squizlabs/php_codesniffer": "~1.5.0"
 	},
 	"suggest": {
 		"kdyby/doctrine-forms": ""

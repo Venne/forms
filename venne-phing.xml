@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="venne/forms" default="build">
+
+	<property name="path.venne.forms.tester.executable" value="${path.bin}/tester"/>
+	<property name="path.venne.forms.phpcs.executable" value="${path.bin}/phpcs"/>
+	<property name="path.venne.forms.root" value="${path.vendor}/venne/forms"/>
+	<property name="path.venne.forms.build" value="${path.venne.forms.root}/build"/>
+	<property name="path.venne.forms.src" value="${path.venne.forms.root}/src"/>
+	<property name="path.venne.forms.tests" value="${path.venne.forms.root}/tests"/>
+	<property name="path.venne.forms.phpcs.ruleset" value="${path.venne.forms.build}/ruleset.xml"/>
+
+	<target name="build">
+	</target>
+
+	<target name="check" depends="check-php,tester"/>
+
+	<target name="check-php" depends="phpcs"/>
+
+	<target name="phpcs">
+		<exec
+				executable="${path.venne.forms.phpcs.executable}"
+				logoutput="true"
+				passthru="true"
+				checkreturn="true"
+				>
+			<arg value="--standard=${path.venne.forms.phpcs.ruleset}"/>
+			<arg value="--extensions=php"/>
+			<arg value="--encoding=utf-8"/>
+			<arg value="--tab-width=4"/>
+			<arg value="-sp"/>
+			<arg path="${path.venne.forms.src}"/>
+		</exec>
+	</target>
+
+	<target name="tester">
+		<exec
+				executable="${path.venne.forms.tester.executable}"
+				logoutput="true"
+				passthru="true"
+				checkreturn="true"
+				>
+			<arg path="${path.venne.forms.tests}"/>
+		</exec>
+	</target>
+
+</project>

@@ -16,6 +16,7 @@ use Kdyby\DoctrineForms\EntityFormMapper;
 use Nette\Application\UI\Form;
 use Nette\Forms\ISubmitterControl;
 use Nette\InvalidArgumentException;
+use Tracy\Debugger;
 use Venne\Forms\Controls\EventControl;
 
 /**
@@ -32,9 +33,6 @@ class FormFactory extends \Venne\Forms\FormFactory implements \Venne\Forms\IForm
 
 	/** @var callable */
 	private $saveEntity;
-
-	/** @var bool */
-	private $inTransaction = false;
 
 	/**
 	 * @param \Kdyby\DoctrineForms\EntityFormMapper $entityMapper
@@ -68,7 +66,7 @@ class FormFactory extends \Venne\Forms\FormFactory implements \Venne\Forms\IForm
 	public function setSaveEntity($saveEntity)
 	{
 		if ($saveEntity && !is_callable($saveEntity)) {
-			throw new InvalidArgumentException("Argument must be callable.");
+			throw new InvalidArgumentException('Argument must be callable.');
 		}
 
 		$this->saveEntity = $saveEntity;
@@ -82,43 +80,25 @@ class FormFactory extends \Venne\Forms\FormFactory implements \Venne\Forms\IForm
 	public function create()
 	{
 		$form = parent::create();
-
 		$form['_eventControl'] = $eventControl = new EventControl('_eventControl');
-		$entity = $this->entity;
-		$saveEntity = $this->saveEntity;
-		$eventControl->onAttached[] = function () use ($form, $entity) {
-			$this->entityMapper->load($entity, $form);
+
+		$eventControl->onAttached[] = function () use ($form) {
+			$this->entityMapper->load($this->entity, $form);
 			unset($form['_eventControl']);
 		};
-		$form->onValidate[] = function () use ($form, $entity, $saveEntity) {
-			$this->entityMapper->save($entity, $form);
+
+		$form->onSuccess[] = function (Form $form) {
+			$this->entityMapper->save($this->entity, $form);
+			$saveEntity = $this->saveEntity;
+
 			if ($saveEntity && $saveEntity($form)) {
 				try {
-					$this->entityMapper->getEntityManager()->beginTransaction();
-					$this->inTransaction = true;
-					$this->entityMapper->getEntityManager()->getRepository($entity::getClassName())->save($entity);
+					$this->entityMapper->getEntityManager()->flush($this->entity);
 				} catch (\Exception $e) {
-					$this->entityMapper->getEntityManager()->rollback();
-					$this->inTransaction = false;
+					Debugger::log($e);
+
 					$form->addError($e->getMessage());
 				}
-			}
-		};
-		$form->onSuccess[] = function (Form $form) {
-			if ($this->inTransaction) {
-				try {
-					$this->entityMapper->getEntityManager()->commit();
-					$this->inTransaction = false;
-				} catch (\Exception $e) {
-					$this->entityMapper->getEntityManager()->rollback();
-					$this->inTransaction = false;
-					$form->addError($e->getMessage());
-				}
-			}
-		};
-		$form->onError[] = function () {
-			if ($this->inTransaction) {
-				$this->entityMapper->getEntityManager()->rollback();
 			}
 		};
 

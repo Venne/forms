@@ -49,7 +49,7 @@ class DoctrineFormFactoryTest extends \Tester\TestCase
 		Assert::null($this->entityFormMapper->save);
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 
-		$form->onValidate();
+		$form->onSuccess($form);
 
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 		Assert::same(array($entity, $form), $this->entityFormMapper->save);
@@ -71,37 +71,16 @@ class DoctrineFormFactoryTest extends \Tester\TestCase
 
 		Assert::null($this->entityFormMapper->load);
 		Assert::null($this->entityFormMapper->save);
-		Assert::null($em->begin);
-		Assert::null($em->persist);
-		Assert::null($em->flush);
-		Assert::null($em->commit);
-		Assert::null($em->rollback);
 
 		$form['_eventControl']->onAttached();
 
 		Assert::null($this->entityFormMapper->save);
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 
-		$form->onValidate($form);
-
-		Assert::same(array($entity, $form), $this->entityFormMapper->load);
-		Assert::same(array($entity, $form), $this->entityFormMapper->save);
-		Assert::true($em->begin);
-		Assert::true($em->persist);
-		Assert::true($em->flush);
-		Assert::null($em->commit);
-		Assert::null($em->rollback);
-
 		$form->onSuccess($form);
 
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 		Assert::same(array($entity, $form), $this->entityFormMapper->save);
-		Assert::true($em->begin);
-		Assert::true($em->persist);
-		Assert::true($em->flush);
-		Assert::true($em->commit);
-		Assert::null($em->rollback);
-
 	}
 
 	public function testBuildFactorySaveError()
@@ -119,116 +98,21 @@ class DoctrineFormFactoryTest extends \Tester\TestCase
 
 		Assert::null($this->entityFormMapper->load);
 		Assert::null($this->entityFormMapper->save);
-		Assert::null($em->begin);
-		Assert::null($em->persist);
-		Assert::null($em->flush);
-		Assert::null($em->commit);
-		Assert::null($em->rollback);
 
 		$form['_eventControl']->onAttached();
 
 		Assert::null($this->entityFormMapper->save);
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 
-		$form->onValidate($form);
+		$form->onSuccess($form);
 
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 		Assert::same(array($entity, $form), $this->entityFormMapper->save);
-		Assert::true($em->begin);
-		Assert::true($em->persist);
-		Assert::true($em->flush);
-		Assert::null($em->commit);
-		Assert::null($em->rollback);
 
 		$form->onError($form);
 
 		Assert::same(array($entity, $form), $this->entityFormMapper->load);
 		Assert::same(array($entity, $form), $this->entityFormMapper->save);
-		Assert::true($em->begin);
-		Assert::true($em->persist);
-		Assert::true($em->flush);
-		Assert::null($em->commit);
-		Assert::true($em->rollback);
-
-	}
-
-	public function testBuildFactoryFlushError()
-	{
-		$entity = new FooEntity;
-		$this->entityFormMapper->em = $em = new EntityManagerErrorOnFlush;
-
-		$form = (new FormFactory($this->entityFormMapper, new \Venne\Forms\FormFactory(function () {
-			return new MyForm;
-		})))
-			->setEntity($entity)
-			->create();
-
-		$form->s = $form['_submit'];
-
-		Assert::null($em->rollback);
-		Assert::same(0, count($form->getErrors()));
-
-		$form['_eventControl']->onAttached();
-		$form->onValidate($form);
-
-		Assert::true($em->rollback);
-		Assert::same(1, count($form->getErrors()));
-	}
-
-	public function testBuildFactoryCommitError()
-	{
-		$entity = new FooEntity;
-		$this->entityFormMapper->em = $em = new EntityManagerErrorOnCommit;
-
-		$form = (new FormFactory($this->entityFormMapper, new \Venne\Forms\FormFactory(function () {
-			return new MyForm;
-		})))
-			->setEntity($entity)
-			->create();
-
-		$form->s = $form['_submit'];
-
-		$form['_eventControl']->onAttached();
-		$form->onValidate($form);
-
-		Assert::null($em->rollback);
-		Assert::same(0, count($form->getErrors()));
-
-		$form->onSuccess($form);
-
-		Assert::true($em->rollback);
-		Assert::same(1, count($form->getErrors()));
-	}
-
-	public function testSetSaveEntity()
-	{
-		$formFactory = new FormFactory($this->entityFormMapper);
-
-		Assert::exception(function () use ($formFactory) {
-			$formFactory->setSaveEntity('aaa');
-		}, 'Nette\InvalidArgumentException', 'Argument must be callable.');
-
-		foreach (array(true, false) as $val) {
-			$test = false;
-			$entity = new FooEntity;
-			$this->entityFormMapper->em = $em = new EntityManagerErrorOnCommit;
-
-			$form = (new FormFactory($this->entityFormMapper, new \Venne\Forms\FormFactory(function () {
-				return new MyForm;
-			})))
-				->setEntity($entity)
-				->setSaveEntity(function () use (&$test, $val) {
-					$test = true;
-
-					return $val;
-				})
-				->create();
-
-			$form['_eventControl']->onAttached();
-			$form->onValidate($form);
-
-			Assert::same($val ?: null, $em->begin);
-		}
 	}
 
 }
@@ -280,20 +164,9 @@ class EntityManagerErrorOnFlush extends EntityManager
 class EntityManager
 {
 
-	public $begin;
-
 	public $persist;
 
 	public $flush;
-
-	public $commit;
-
-	public $rollback;
-
-	public function beginTransaction()
-	{
-		$this->begin = true;
-	}
 
 	public function persist()
 	{
@@ -305,16 +178,6 @@ class EntityManager
 		$this->flush = true;
 	}
 
-	public function commit()
-	{
-		$this->commit = true;
-	}
-
-	public function rollback()
-	{
-		$this->rollback = true;
-	}
-
 	public function getRepository($class)
 	{
 		return new Repository($this);
@@ -324,6 +187,7 @@ class EntityManager
 
 class Repository
 {
+
 	public $em;
 
 	function __construct($em)

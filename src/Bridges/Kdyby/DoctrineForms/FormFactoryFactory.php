@@ -33,7 +33,7 @@ class FormFactoryFactory implements \Venne\Forms\IFormFactoryFactory
 
 	/**
 	 * @param \Venne\Forms\IFormFactory|NULL $formFactory
-	 * @return \Venne\Forms\FormFactory
+	 * @return \Venne\Bridges\Kdyby\DoctrineForms\FormFactory
 	 */
 	public function create(IFormFactory $formFactory = null)
 	{
